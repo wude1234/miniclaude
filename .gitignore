@@ -144,6 +144,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Mini Claude Code runtime / scratch data
+.mini_claude/
+tmp/
+
 # Spyder project settings
 .spyderproject
 .spyproject

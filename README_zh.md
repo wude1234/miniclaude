@@ -18,7 +18,7 @@
 
 一个渐进式教程，揭开 Kode、Claude Code、Cursor Agent 等 AI Agent 的神秘面纱。
 
-**5 个版本，总共约 1100 行，每个版本只添加一个概念：**
+**7 个版本，前 5 个保持渐进式教学，v5/v6 对齐面试材料做工程化增强：**
 
 | 版本 | 行数 | 新增内容 | 核心洞察 |
 |------|------|---------|---------|
@@ -27,6 +27,8 @@
 | [v2](./v2_todo_agent.py) | ~300 | Todo 追踪 | 显式规划 |
 | [v3](./v3_subagent.py) | ~450 | 子代理 | 分而治之 |
 | [v4](./v4_skills_agent.py) | ~550 | Skills | 按需领域专业 |
+| [v5](./v5_interview_agent.py) | ~1000 | 文件安全、权限、记忆、压缩、更多工具 | 面试级工程细节 |
+| [v6](./v6_full_agent.py) | ~1500 | MCP、语义记忆、流式双后端、会话/预算 | 完整面试版 |
 
 ## 快速开始
 
@@ -43,6 +45,20 @@ python v1_basic_agent.py # 核心 Agent 循环
 python v2_todo_agent.py  # + Todo 规划
 python v3_subagent.py    # + 子代理
 python v4_skills_agent.py # + Skills
+python v5_interview_agent.py # + 面试增强版工程机制
+python v6_full_agent.py # + 完整面试版
+```
+
+### 使用阿里云百炼 / DashScope 运行 v5
+
+v5 支持 OpenAI-compatible 接口，可直接使用 DashScope：
+
+```bash
+export MINI_CLAUDE_BACKEND=openai
+export DASHSCOPE_API_KEY=sk-xxx
+export MODEL_NAME=qwen-turbo
+python3 v5_interview_agent.py
+python3 v6_full_agent.py --session demo --resume
 ```
 
 ## 核心模式
@@ -70,6 +86,8 @@ mini-claude-code/
 ├── v2_todo_agent.py       # ~300 行: + TodoManager
 ├── v3_subagent.py         # ~450 行: + Task 工具，代理注册表
 ├── v4_skills_agent.py     # ~550 行: + Skill 工具，SkillLoader
+├── v5_interview_agent.py  # 面试增强版: 文件安全、权限、记忆、压缩
+├── v6_full_agent.py       # 完整面试版: MCP、流式、语义记忆、会话、预算
 ├── skills/                # 示例 Skills（用于学习）
 └── docs/                  # 详细文档 (中英双语)
 ```
@@ -115,6 +133,35 @@ Task 工具生成隔离的子代理。上下文保持干净。
 
 ### v4: Skills 机制
 SKILL.md 文件按需提供领域专业知识。知识作为一等公民。
+
+### v5: 面试增强版
+把 `01-MiniClaudeCode项目专属面试题(1).pdf` 中能自然落地到教学版的工程点实现出来：
+
+- 文件安全：read-before-edit、mtime 追踪、弯引号归一化、唯一性检查、unified diff
+- 权限模式：plan/default/acceptEdits/bypassPermissions/dontAsk
+- 更多工具：list_files、grep_search、run_shell、remember、recall_memory、show_state
+- 上下文控制：大结果落盘、旧工具结果 snip、保留最近结果
+- 子代理增强：隔离上下文、工具白名单、token 用量回传
+- Skills 增强：支持多行 frontmatter description 和资源提示
+
+它仍然是学习实现，不是完整生产沙箱。PDF 中提到的完整 MCP client、真正的 semantic sideQuery、Anthropic/OpenAI 双 streaming 后端等更重模块，可以在 v5 基础上继续扩展。
+
+### v6: 完整面试版
+进一步补齐 PDF 中的高级追问点：
+
+- MCP client：从 `~/.claude/settings.json`、项目 `.claude/settings.json`、`.mcp.json` 加载 MCP server，使用 JSON-RPC over stdio 初始化、发现工具、路由调用
+- semantic sideQuery：先扫描记忆候选，再用 LLM 选择相关记忆；失败时回退关键词召回
+- 双后端 streaming：Anthropic streaming 累积 `partial_json`，在 `content_block_stop` 组装工具调用；OpenAI/DashScope 走 SSE delta 累积 tool calls
+- 4 层压缩：大结果落盘、旧结果 snip、保留最近结果、超阈值 LLM 摘要压缩
+- 会话与预算：`.mini_claude/sessions/*.json` 自动保存，支持 `--resume`、`--session`、`--max-cost`
+
+离线测试：
+
+```bash
+python3 tests/run_v6_offline_tests.py
+```
+
+该测试不需要 API key，会覆盖 Anthropic `content_block_stop` 工具块组装、MCP stdio 工具发现/调用、文件安全、压缩和 session resume。
 
 ## 深入阅读
 

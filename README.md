@@ -18,7 +18,7 @@
 
 A progressive tutorial that demystifies AI coding agents like Kode, Claude Code, and Cursor Agent.
 
-**5 versions, ~1100 lines total, each adding one concept:**
+**7 versions: the first 5 stay progressive, while v5/v6 add interview-oriented engineering details:**
 
 | Version | Lines | What it adds | Core insight |
 |---------|-------|--------------|--------------|
@@ -27,6 +27,8 @@ A progressive tutorial that demystifies AI coding agents like Kode, Claude Code,
 | [v2](./v2_todo_agent.py) | ~300 | Todo tracking | Explicit planning |
 | [v3](./v3_subagent.py) | ~450 | Subagents | Divide and conquer |
 | [v4](./v4_skills_agent.py) | ~550 | Skills | Domain expertise on-demand |
+| [v5](./v5_interview_agent.py) | ~1000 | File safety, permissions, memory, compression, more tools | Interview-ready engineering details |
+| [v6](./v6_full_agent.py) | ~1500 | MCP, semantic memory, streaming dual backends, sessions/budget | Full interview edition |
 
 ## Quick Start
 
@@ -43,6 +45,20 @@ python v1_basic_agent.py # Core agent loop
 python v2_todo_agent.py  # + Todo planning
 python v3_subagent.py    # + Subagents
 python v4_skills_agent.py # + Skills
+python v5_interview_agent.py # + Interview-enhanced mechanisms
+python v6_full_agent.py # + Full interview edition
+```
+
+### Run v5 with Alibaba Cloud DashScope
+
+v5 supports OpenAI-compatible APIs, so it can run against DashScope:
+
+```bash
+export MINI_CLAUDE_BACKEND=openai
+export DASHSCOPE_API_KEY=sk-xxx
+export MODEL_NAME=qwen-turbo
+python3 v5_interview_agent.py
+python3 v6_full_agent.py --session demo --resume
 ```
 
 ## The Core Pattern
@@ -70,6 +86,8 @@ mini-claude-code/
 ├── v2_todo_agent.py       # ~300 lines: + TodoManager
 ├── v3_subagent.py         # ~450 lines: + Task tool, agent registry
 ├── v4_skills_agent.py     # ~550 lines: + Skill tool, SkillLoader
+├── v5_interview_agent.py  # Interview-enhanced: safety, permissions, memory, compression
+├── v6_full_agent.py       # Full interview edition: MCP, streaming, semantic memory, sessions, budget
 ├── skills/                # Example skills (for learning)
 └── docs/                  # Detailed explanations (EN + ZH)
 ```
@@ -115,6 +133,35 @@ Task tool spawns isolated child agents. Context stays clean.
 
 ### v4: Skills Mechanism
 SKILL.md files provide domain expertise on-demand. Knowledge as a first-class citizen.
+
+### v5: Interview-Enhanced Agent
+Implements the engineering topics from `01-MiniClaudeCode项目专属面试题(1).pdf` that fit naturally on top of the teaching code:
+
+- File safety: read-before-edit, mtime tracking, quote normalization, uniqueness checks, unified diff
+- Permission modes: plan/default/acceptEdits/bypassPermissions/dontAsk
+- More tools: list_files, grep_search, run_shell, remember, recall_memory, show_state
+- Context control: large tool-result spillover, stale result snipping, recent-result retention
+- Stronger subagents: isolated context, tool allowlists, token usage aggregation
+- Better Skills loader: multiline frontmatter descriptions and resource hints
+
+It is still a compact learning implementation, not a full production sandbox. Heavier topics from the PDF, such as a full MCP client, true semantic sideQuery recall, and dual Anthropic/OpenAI streaming backends, can be built on top of v5.
+
+### v6: Full Interview Edition
+Adds the advanced topics from the PDF:
+
+- MCP client: loads servers from `~/.claude/settings.json`, project `.claude/settings.json`, and `.mcp.json`; initializes JSON-RPC over stdio, discovers tools, and routes calls
+- semantic sideQuery: scans memory candidates, asks the LLM to select relevant notes, and falls back to keyword recall
+- streaming dual backends: Anthropic streaming accumulates `partial_json` and assembles tool calls on `content_block_stop`; OpenAI/DashScope uses SSE deltas for tool calls
+- 4-tier compression: large-result spillover, stale-result snipping, recent-result retention, and LLM summary compression
+- sessions and budget: auto-saves `.mini_claude/sessions/*.json`, with `--resume`, `--session`, and `--max-cost`
+
+Offline tests:
+
+```bash
+python3 tests/run_v6_offline_tests.py
+```
+
+The test requires no API key and covers Anthropic `content_block_stop` tool assembly, MCP stdio discovery/calls, file safety, compression, and session resume.
 
 ## Deep Dives
 
