@@ -7,7 +7,7 @@
 
 面试时建议这样介绍：
 
-> Mini Claude Code 是一个从零实现 coding agent 的渐进式 Python 项目。v0-v4 用最少代码讲清 Agent Loop、工具调用、Todo、Sub-agent 和 Skills；v5/v6 在教学版基础上对齐面试材料，补充文件安全、权限系统、上下文压缩、语义记忆、MCP、双后端 streaming、session resume 和 cost budget 等工程机制。它不是 Claude Code 50 万行生产代码的完整复刻，而是核心机制可运行、可演示、可追源码的学习/面试复现版。
+> Mini Claude Code 是一个基于 Python 复现并扩展 Claude Code 类 coding agent 核心机制的项目。v0-v4 用最少代码讲清 Agent Loop、工具调用、Todo、Sub-agent 和 Skills；v5/v6 在教学版基础上补充文件安全、权限系统、上下文压缩、语义记忆、MCP、双后端 streaming、session resume 和 cost budget 等工程机制。它不是 Claude Code 50 万行生产代码的完整复刻，而是核心机制可运行、可演示、可追源码的学习/面试复现版。
 
 不要说：
 
@@ -16,6 +16,10 @@
 建议说：
 
 > 我复现并验证了 Claude Code 类 coding agent 的关键机制，并用 v6 做成了一个可运行的 Python 面试完整版。
+
+如果面试官追问 GitHub 历史或“从零实现”的边界，建议补一句：
+
+> 这个项目保留了 Mini Claude Code 教学主线，我重点做的是基于这条主线补齐和验证 v5/v6 的工程机制，包括文件安全、上下文压缩、MCP、双后端 streaming、session resume 和离线测试。我不会把它包装成完整生产级 Claude Code，而是定位为核心机制可运行、可测试、可讲清楚的面试版。
 
 ## 项目版本速览
 
@@ -28,6 +32,40 @@
 | v4 | `v4_skills_agent.py` | SkillLoader + SKILL.md | 知识外置 |
 | v5 | `v5_interview_agent.py` | 文件安全、权限、记忆、压缩、DashScope 后端 | 面试增强版 |
 | v6 | `v6_full_agent.py` | MCP、semantic sideQuery、双 streaming、session、cost budget | 完整面试版 |
+
+## 简历项目写法
+
+推荐放在简历里的版本：
+
+**Mini Claude Code：Claude Code 类 Coding Agent 核心机制复现与工程化增强**  
+Github 仓库链接：https://github.com/wude1234/miniclaude
+
+- 基于 Python 复现并扩展 **ReAct 式 Agent Loop**，构建“模型决策 - Tool Calling - 工具执行 - Observation 回写”的闭环，支持文件读写、命令执行、代码搜索、Todo 规划、Sub-agent 和 Skills。
+- 针对 Coding Agent 长任务中的上下文膨胀和信息污染问题，设计 **4 层上下文压缩策略**，包括大工具结果落盘、旧结果 snip、最近结果保留和 LLM 摘要压缩，并通过 **session resume** 保存 messages、token usage、权限状态和文件读取状态。
+- 针对自动代码编辑可靠性问题，实现 **read-before-edit**、**mtime 追踪**、**old_text 唯一性检查**、**unified diff** 和危险 shell 检测，降低 stale edit、误替换和高风险命令执行带来的工程风险。
+- 集成 **MCP JSON-RPC stdio** 工具发现/调用机制，并适配 **Anthropic / OpenAI-compatible 双后端 streaming**，统一抽象为内部 `ModelResult`；离线测试覆盖 streaming tool assembly、MCP 调用、文件安全、上下文压缩和 session 恢复。
+
+更适合空间紧张的简历短版：
+
+> 基于 Python 复现并扩展 Claude Code 类 **ReAct 式 Coding Agent**，支持 Agent Loop、Tool Calling、Sub-agent、Skills、MCP、双后端 streaming、上下文压缩、权限控制与 session resume。针对长任务中的上下文膨胀、工具结果污染和自动代码编辑风险，设计 **4 层上下文治理策略** 与 **read-before-edit / mtime / unified diff** 文件安全机制，并通过离线测试验证 streaming 工具调用组装、MCP 调用、压缩和会话恢复流程。
+
+简历上建议加粗的关键词：
+
+- **ReAct 式 Agent Loop**
+- **Tool Calling**
+- **4 层上下文压缩策略**
+- **read-before-edit**
+- **Sub-agent**
+- **Skills**
+- **MCP JSON-RPC stdio**
+- **双后端 streaming**
+- **session resume**
+
+简历上不建议夸大的说法：
+
+- 不说“完整复刻 Claude Code 生产能力”。
+- 不说“完全从零实现 50 万行 Claude Code”。
+- 不说“生产级安全沙箱”，当前权限和 shell 安全是学习/面试级防护。
 
 ## 可验证命令
 
@@ -1066,3 +1104,61 @@ Mini Claude Code 是一个从最小 bash agent 递进到 v6 完整面试版的 c
 如果时间很短，可以只背这段：
 
 > 我的 Mini Claude Code 项目分成 v0-v6。v0-v4 是教学链路：bash agent、四工具 agent、Todo、Sub-agent、Skills。v5/v6 是面试增强：加入 read-before-edit、mtime、diff、权限模式、上下文压缩、semantic sideQuery、MCP、DashScope/OpenAI-compatible streaming、Anthropic streaming 事件解析、session resume 和 cost budget。核心思想是模型本身负责决策，代码提供工具、上下文、安全和执行闭环。项目不是 Claude Code 的生产级完整替代，而是核心机制可运行、可测试、可追源码的 Python 复现。
+
+## 简历追问的 STAR 段落回答
+
+下面这些回答按 STAR 法则组织，但不写成生硬的 S/T/A/R 列表，面试时可以直接按段落讲。
+
+### 1. 请介绍一下你的 Mini Claude Code 项目
+
+这个项目的背景是我想系统理解 Claude Code、Cursor Agent 这类 Coding Agent 的核心架构，而不是只停留在调用 LLM API 的层面。普通 Chatbot 是“用户输入到模型输出”，但 Coding Agent 的关键是模型能持续调用工具、观察结果并再次决策。我的目标是基于 Python 复现这套核心闭环，并在最终版本补充真实 Agent 系统会遇到的工程问题，比如上下文膨胀、代码编辑安全、子任务隔离、MCP 工具扩展和会话恢复。
+
+具体实现上，我按 v0 到 v6 渐进式拆解：先用最小 bash agent 跑通工具调用，再加入文件工具、Todo、Sub-agent、Skills，最后在 v5/v6 中实现压缩、权限、MCP、双后端 streaming 和 session resume。最终结果是一个可运行、可测试、可追源码的 Claude Code 类 Agent 学习与面试版。这里我会主动说明，它不是替代生产级 Claude Code，而是把核心机制拆出来并做成可验证实现。
+
+### 2. 这个项目和普通 LLM 应用有什么区别？
+
+我做这个项目时，最核心的问题是区分“LLM 应用”和“Agent 系统”。普通 LLM 应用通常是一次输入、一次输出，而 Coding Agent 需要形成执行闭环：模型先根据上下文决定是否调用工具，程序执行工具后把结果作为 Observation 写回 messages，再让模型继续决策。这个闭环会带来普通 Chatbot 不需要处理的问题，包括工具结果管理、文件状态追踪、权限控制、长上下文压缩和会话恢复。
+
+实现上，我设计了统一的 Agent Loop，把模型输出解析成 tool calls，执行文件读写、代码搜索、命令执行等工具，再把 tool result 回写到下一轮上下文。这样模型从“回答者”变成“决策者”，代码负责工具执行、上下文管理和安全边界。最终项目能支撑多轮代码任务，也能展示 Agent 系统和普通 API wrapper 的本质区别。
+
+### 3. 为什么要做 4 层上下文压缩？
+
+在 Coding Agent 长任务里，一个很现实的问题是工具结果会快速撑爆上下文窗口。比如 grep 大量文件、读取长代码、运行测试产生长日志，如果不治理，token 成本、响应延迟和模型注意力都会恶化，甚至无法继续调用模型。所以我设计了 4 层上下文压缩策略，目标不是简单截断，而是在成本、可追溯性和最近上下文之间做平衡。
+
+具体做法是：第一层把大工具结果落盘到 `.mini_claude/context/`，上下文里只保留路径和头尾预览；第二层把旧 tool result 替换成 snip 标记；第三层保留最近几个工具结果，因为最近 Observation 对下一步决策最重要；第四层在超阈值后调用 LLM 把旧 messages 摘成 `<context-summary>`，同时保持 user/assistant 消息结构合法。这个机制让长任务可以继续推进，也保留了必要的追溯路径，体现的是 Agent 系统里的上下文治理能力。
+
+### 4. 文件安全机制为什么重要？
+
+Coding Agent 和普通问答最大的区别之一是它会真的修改文件、执行命令。如果没有安全机制，模型可能基于旧上下文覆盖用户改动，或者因为 old_text 太短误替换代码。我的目标是让自动代码编辑更可靠，而不是只让模型“能写文件”。
+
+实现上，我做了 read-before-edit，要求修改已有文件前必须先读取；读取时记录 mtime，编辑前检查文件是否被外部改过，避免 stale edit；`edit_file` 会检查 old_text 是否唯一，避免误替换；修改成功后返回 unified diff，让用户和模型都能看到具体变更。对于 shell，我用危险命令正则和简单 segment 解析拦截 `sudo`、`rm -rf /`、`git reset --hard` 等高风险操作。结果是项目具备一层学习/面试级安全防护。生产环境还需要容器沙箱、AST 级 shell 分析和更严格的权限审批，这一点我会主动说明。
+
+### 5. Sub-agent 和 Skills 分别解决什么问题？
+
+我引入 Sub-agent 和 Skills 是为了解决两个不同问题。Sub-agent 主要解决上下文污染：主 Agent 做实现任务前，可能需要先探索很多文件，如果所有中间结果都进入主上下文，会干扰后续决策。因此我实现了 `Task` 工具，为 explore、plan、code 等子代理创建独立 Agent 实例，使用独立 messages 和工具白名单，最后只把摘要返回给主 Agent。
+
+Skills 解决的是领域知识按需注入问题。比如 PDF 处理、MCP 构建、代码审查等任务不适合全部塞进 system prompt，否则初始上下文和成本都会上升。所以我通过 `SKILL.md` 做 progressive disclosure：系统提示里只放 skill 名称和描述，真正需要时才加载完整内容。这样 Sub-agent 提升任务隔离能力，Skills 提升领域泛化能力，两者分别解决“怎么拆任务”和“怎么注入专业流程”。
+
+### 6. MCP 和双后端 streaming 怎么讲？
+
+在最终版里，我希望 Agent 不只依赖内置工具，而是能接入外部工具生态，所以实现了一个最小 MCP client。它从配置文件读取 MCP server，通过 JSON-RPC over stdio 完成 `initialize`、`tools/list` 和 `tools/call`，并把外部工具映射成 `mcp__server__tool` 的命名格式，避免和内置工具冲突，也方便按 server 路由。
+
+双后端方面，我把 Anthropic 和 OpenAI-compatible/DashScope 的响应统一抽象成内部 `ModelResult`，主循环只处理 text 和 tool_use，不关心底层后端差异。Anthropic streaming 侧重点是处理 `content_block_start/delta/stop`，在 `content_block_stop` 后解析完整工具 JSON；OpenAI-compatible 则通过 SSE delta 累积 tool call arguments。这样后端适配被隔离在模型调用层，Agent Loop 本身保持稳定。
+
+### 7. 这个项目最难的地方是什么？
+
+最难的不是写工具函数，而是处理 Agent 系统里的状态一致性。比如 streaming tool call 不是一次性返回完整 JSON，而是跨 chunk 累积，如果在 delta 阶段解析就会触发 JSONDecodeError，所以必须等 block stop 后再解析。再比如压缩不能随便删 messages，因为模型 API 对 user/assistant 结构有要求；文件编辑也不能只靠字符串替换，因为会遇到旧内容重复、文件被外部修改等问题。
+
+我的处理方式是把这些问题拆成几个机制：`AnthropicStreamAssembler` 负责工具块组装，compression pipeline 负责上下文治理，`Workspace` 负责读写安全，`PermissionManager` 负责权限控制，`McpConnection` 负责外部工具协议适配。最终这些模块一起保证 Agent Loop 能比较稳定地跑长任务。这个回答的重点是：Agent 难点不是“调模型”，而是模型调用工具后的状态、安全和上下文一致性。
+
+### 8. 如果重新设计会怎么改？
+
+如果重新设计，我会做三类改进。第一是模块化，现在 v6 为了教学可读性保留成单文件，但生产化应该拆成 `agent.py`、`tools.py`、`memory.py`、`mcp_client.py`、`compression.py`，降低耦合，也方便单元测试。第二是安全增强，现在危险命令检测主要靠正则和简单 shell segment 解析，生产版应该引入容器沙箱、命令 AST 分析、权限审批和文件系统隔离。
+
+第三是上下文和记忆系统升级。当前 memory 主要是文件候选加 sideQuery，后续可以引入 embedding index、长期记忆索引和原始历史/压缩历史双轨存储。这样既保留当前项目作为学习实现的简洁性，也能说明我知道它距离生产级 Agent 还差哪些工程环节。
+
+### 9. 如果面试官问 GitHub 历史或“从零实现”怎么答？
+
+这个问题要正面回答，不要硬说完整从零。我会说：这个仓库保留了 Mini Claude Code 的教学主线，我的重点是基于这条主线做复现理解和面试版扩展，尤其是 v5/v6 的工程机制，包括文件安全、上下文压缩、MCP、双后端 streaming、session resume 和离线测试。我在简历里更准确的表述是“基于 Python 复现并扩展 Claude Code 类 Agent 核心机制”，而不是“完整复刻 Claude Code 生产系统”。
+
+这样回答的好处是把边界讲清楚，同时把价值落在可验证的工作上：代码能运行，测试能跑，关键机制能追源码，面试时能解释为什么这些机制是 Coding Agent 区别于普通 LLM 应用的核心。
